@@ -6,16 +6,22 @@ class Board {
 	const U1WON = 1; //the usernum of the winning user is the constant value!
 	const U2WON = 2;
 
-	private $board = array(array(0,0,0,0,0,0),
-			array(0,0,0,0,0,0),
-			array(0,0,0,0,0,0),
-			array(0,0,0,0,0,0),
-			array(0,0,0,0,0,0),
-			array(0,0,0,0,0,0),
-			array(0,0,0,0,0,0));
+	private $board;
+	private $state;
 
 	private $win = self::NOWIN;
 
+	public function __construct($u1, $u2) {
+		$this->board = array(  array(0,0,0,0,0,0),
+								array(0,0,0,0,0,0),
+								array(0,0,0,0,0,0),
+								array(0,0,0,0,0,0),
+								array(0,0,0,0,0,0),
+								array(0,0,0,0,0,0),
+								array(0,0,0,0,0,0)  );
+		$this->state = $u1;
+	}
+	
 	public function getBoard(){
 		return $board;
 	}

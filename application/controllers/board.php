@@ -139,5 +139,13 @@ class Board extends CI_Controller {
 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
  	
+ 	function check_for_updates() {
+ 		
+ 	}
+ 	
+ 	function play($column) {
+ 		
+ 	}
+ 	
  }
 
