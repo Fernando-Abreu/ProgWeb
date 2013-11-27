@@ -140,11 +140,16 @@ class Board extends CI_Controller {
  	}
  	
  	function check_for_updates() {
- 		
+ 		//sends board array of arrays and victory status
+		$board = 0;
+		$user = 1;
+ 		echo json_encode(array('board'=>$board,
+ 								'victory'=>false,
+ 								'user'=>$user));
  	}
  	
  	function play($column) {
- 		
+ 		//updates the board object in the db
  	}
  	
  }

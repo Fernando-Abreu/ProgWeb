@@ -35,6 +35,26 @@
 								$('[name=conversation]').val(conversation + "\n" + otherUser + ": " + msg);
 						}
 					});
+					var url = "<?= base_url() ?>board/check_for_updates";
+					$.getJSON(url, function (data,text,jqXHR){
+						if (data) {
+							if (data.victory==true) {
+								if (data.user==user) {
+									$('#move_desc').html("You won! :)");
+								} else {
+									$('#move_desc').html("You lost :(");
+								} 
+							} else {
+								if (data.user==user) {
+									$('#move_desc').html("Your turn");
+								} else {
+									$('#move_desc').html("Waiting for opponent");
+								}
+								// dear fernando: here data.board contains the board
+							}
+							
+						}
+					});
 			});
 
 			$('form').submit(function(){
@@ -43,6 +63,7 @@
 				$.post(url,arguments, function (data,textStatus,jqXHR){
 						var conversation = $('[name=conversation]').val();
 						var msg = $('[name=msg]').val();
+						$('[name=msg]').val('');
 						$('[name=conversation]').val(conversation + "\n" + user + ": " + msg);
 						});
 				return false;
@@ -65,6 +86,9 @@
 		else
 			echo "Wating on " . $otherUser->login;
 	?>
+	</div>
+	
+	<div id='move_desc'>
 	</div>
 	
 <?php 

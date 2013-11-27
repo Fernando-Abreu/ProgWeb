@@ -2,14 +2,10 @@
 
 class Board {
 
-	const NOWIN = 0;
-	const U1WON = 1; //the usernum of the winning user is the constant value!
-	const U2WON = 2;
-
 	private $board;
-	private $state;
-
-	private $win = self::NOWIN;
+	private $players;
+	private $turn;
+	private $win;
 
 	public function __construct($u1, $u2) {
 		$this->board = array(  array(0,0,0,0,0,0),
@@ -19,23 +15,29 @@ class Board {
 								array(0,0,0,0,0,0),
 								array(0,0,0,0,0,0),
 								array(0,0,0,0,0,0)  );
-		$this->state = $u1;
+		$this->players = array($u1,$u2);
+		$this->turn = $u1;
+		$this->win = 0;
 	}
 	
 	public function getBoard(){
-		return $board;
+		return $this->board;
+	}
+	
+	public function getTurn(){
+		return $this->turn;
 	}
 
 	public function checkWin(){
-		return $win;
+		return $this->win;
 	}
 
 	// column should be between 0 and 6
-	// usernum should be 1 or 2
+	// usernum should be active player
 	public function insertToColumn($column, $usernum){
 
 		// validate user number
-		if ($usernum!=1 && $usernum!=2){
+		if ($usernum!=$this->turn){
 			return 'error';
 		}
 		// validate column number
@@ -112,7 +114,11 @@ class Board {
 		}
 		// save result
 		if ($victory){
-			$win = $usernum;
+			$this->win = $usernum;
+			$this->turn = 0;
+		} else {
+			// update turn
+			$this->turn = ($usernum==$this->players[0]?$this->players[1]:$this->players[0]);
 		}
 	}
 
