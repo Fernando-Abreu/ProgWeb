@@ -13,7 +13,5 @@ class Match  {
 	public $match_status_id = self::ACTIVE;
 	
 	public $board_state;
-	public $u1_msg;
-	public $u2_msg;
-		
+	
 }

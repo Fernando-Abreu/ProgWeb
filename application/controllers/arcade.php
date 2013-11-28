@@ -62,6 +62,7 @@ class Arcade extends CI_Controller {
 	    	$this->load->model('user_model');
 	    	$this->load->model('invite_model');
 	    	$this->load->model('match_model');
+	    	$this->load->model('game');
 	    	
 	    	
 	    	$user = $this->user_model->get($user->login);
@@ -81,6 +82,9 @@ class Arcade extends CI_Controller {
 	    $match = new Match();
 	    $match->user1_id = $user->id;
 	    $match->user2_id = $hostUser->id;
+    	$b = new Game();
+    	$b->defineUsers($match->user1_id, $match->user2_id);
+    	$match->board_state = serialize($b);
 	    $this->match_model->insert($match);
 	    $matchId = mysql_insert_id();
 

@@ -76,6 +76,10 @@ class User_model extends CI_Model {
 			return null;
 	}
 	
+	function deleteAll(){	//TODO remove
+		$this->db->query("delete from user");
+	}
+	
 	
 }
 ?>

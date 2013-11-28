@@ -139,17 +139,101 @@ class Board extends CI_Controller {
 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
  	
+ 	/*
+ 	 * returns in json:
+ 	 *   board - an array of arrays
+ 	 *   victory - Boolean, true if someone won, false if still in game
+ 	 *   user - the id of the user who won, or the user that should play
+ 	 *   columns - an array of valid columns to put a disc (not full)
+ 	 */
+
  	function check_for_updates() {
- 		//sends board array of arrays and victory status
-		$board = 0;
-		$user = 1;
+ 		
+ 		$this->load->model('user_model');
+ 		$this->load->model('match_model');
+ 		$this->load->model('game');
+ 			
+ 		$user = $_SESSION['user'];
+ 		 
+ 		$user = $this->user_model->get($user->login);
+ 		if ($user->user_status_id != User::PLAYING) {	
+ 			$errormsg="Not in PLAYING state";
+ 			goto error;
+ 		}
+		
+ 		$match = $this->match_model->get($user->match_id);
+		$game = unserialize($match->board_state);
+		$board = $game->getBoard();
+		$columns = $game->getValidColumns();
+		$win = $game->checkWin();
+		if ($win==0) {
+			$user = $game->getTurn();
+			$victory = false;
+		} else {
+			$user = $win;
+			$victory = true;
+		}
  		echo json_encode(array('board'=>$board,
- 								'victory'=>false,
- 								'user'=>$user));
+ 								'victory'=>$victory,
+ 								'user'=>$user,
+ 								'columns'=>$columns));
+ 		return;
+ 		
+ 		error:
+ 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
  	
  	function play($column) {
  		//updates the board object in the db
+ 		
+ 		$this->load->model('user_model');
+ 		$this->load->model('match_model');
+ 		$this->load->model('game');
+ 		
+ 		$user = $_SESSION['user'];
+ 		$user = $this->user_model->get($user->login);
+ 		if ($user->user_status_id != User::PLAYING) {
+ 			$errormsg="Not in PLAYING state";
+ 			goto error;
+ 		}
+
+ 		// start transactional mode
+ 		$this->db->trans_begin();
+ 		
+ 		$match = $this->match_model->getExclusive($user->match_id);
+
+ 		$board_state = $match->board_state;
+ 		$game = unserialize($board_state);
+ 		if (!($game->isValidMove($column, $user->id))) {
+ 			$errormsg="Invalid move";
+ 			goto transactionerror;
+ 		}
+ 		$game->insertToColumn($column, $user->id);
+ 		$win = $game->checkWin();
+ 		if ($win != 0) {
+ 			$win = ($win==$match->user1_id)? (Match::U1WON):(Match::U2WON);
+ 			$match = $this->match_model->updateStatus($win);
+ 		}
+ 
+ 		$board_state = serialize($board_state);
+ 		$this->match_model->updateBoard($match->id,$board_state);
+ 	
+ 		if ($this->db->trans_status() === FALSE) {
+ 			$errormsg = "Transaction error";
+ 			goto transactionerror;
+ 		}
+ 			
+ 		// if all went well commit changes
+ 		$this->db->trans_commit();
+ 			
+ 		echo json_encode(array('status'=>'success','message'=>$msg));
+ 		return;
+ 		
+ 		transactionerror:
+ 		$this->db->trans_rollback();
+ 		
+ 		error:
+ 		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
  	
  }

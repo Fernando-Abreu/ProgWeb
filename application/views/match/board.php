@@ -9,7 +9,10 @@
 
 		var otherUser = "<?= $otherUser->login ?>";
 		var user = "<?= $user->login ?>";
+		var user_id = "<?= $user->id ?>";
 		var status = "<?= $status ?>";
+		var turn = false;
+		var possible_columns = [];
 		
 		$(function(){
 			$('body').everyTime(2000,function(){
@@ -39,20 +42,24 @@
 					$.getJSON(url, function (data,text,jqXHR){
 						if (data) {
 							if (data.victory==true) {
-								if (data.user==user) {
+								turn = false;
+								if (data.user==user_id) {
 									$('#move_desc').html("You won! :)");
 								} else {
 									$('#move_desc').html("You lost :(");
 								} 
 							} else {
-								if (data.user==user) {
+								if (data.user==user_id) {
+									turn = true;
+									possible_columns = data.columns;
 									$('#move_desc').html("Your turn");
 								} else {
+									turn = false;
 									$('#move_desc').html("Waiting for opponent");
 								}
-								// dear fernando: here data.board contains the board
+								board_array = data.board;
+								$('#board').html(board_array.toString());
 							}
-							
 						}
 					});
 			});
@@ -90,6 +97,8 @@
 	
 	<div id='move_desc'>
 	</div>
+	
+	<div id='board'></div>
 	
 <?php 
 	
