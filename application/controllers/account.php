@@ -70,36 +70,46 @@ class Account extends CI_Controller {
     }
     
     function createNew() {
-    		$this->load->library('form_validation');
-    	    $this->form_validation->set_rules('username', 'Username', 'required|is_unique[user.login]');
-	    	$this->form_validation->set_rules('password', 'Password', 'required');
-	    	$this->form_validation->set_rules('first', 'First', "required");
-	    	$this->form_validation->set_rules('last', 'last', "required");
-	    	$this->form_validation->set_rules('email', 'Email', "required|is_unique[user.email]");
-	    	
-	    
-	    	if ($this->form_validation->run() == FALSE)
-	    	{
-	    		$this->load->view('account/newForm');
-	    	}
-	    	else  
-	    	{
-	    		$user = new User();
-	    		 
-	    		$user->login = $this->input->post('username');
-	    		$user->first = $this->input->post('first');
-	    		$user->last = $this->input->post('last');
-	    		$clearPassword = $this->input->post('password');
-	    		$user->encryptPassword($clearPassword);
-	    		$user->email = $this->input->post('email');
-	    		
-	    		$this->load->model('user_model');
-	    		 
-	    		
-	    		$error = $this->user_model->insert($user);
-	    		
-	    		$this->load->view('account/loginForm');
-	    	}
+    	$this->load->library('form_validation');
+    	$this->form_validation->set_rules('username', 'Username', 'required|is_unique[user.login]');
+    	$this->form_validation->set_rules('password', 'Password', 'required');
+    	$this->form_validation->set_rules('first', 'First', "required");
+    	$this->form_validation->set_rules('last', 'last', "required");
+    	$this->form_validation->set_rules('email', 'Email', "required|is_unique[user.email]");
+    	$this->form_validation->set_rules('captcha_code', 'Captcha', "required| max_length[6]");
+    
+    	if ($this->form_validation->run() == FALSE)
+    	{
+    		$this->load->view('account/newForm');
+    	}
+    	else
+    	{
+    		include_once $_SERVER['DOCUMENT_ROOT'] . '/connect4/securimage/securimage.php';
+    		$securimage = new Securimage();
+    		if ($securimage->check($this->input->post('captcha_code')) == false) {
+    			echo "The security code entered was incorrect.<br /><br />";
+    			echo "Please go <a href='javascript:history.go(-1)'>back</a> and try again.";
+    			exit;
+    			//$this->load->view('account/newForm');
+    		}
+    		else
+    		{
+    			$user = new User();
+    			 
+    			$user->login = $this->input->post('username');
+    			$user->first = $this->input->post('first');
+    			$user->last = $this->input->post('last');
+    			$clearPassword = $this->input->post('password');
+    			$user->encryptPassword($clearPassword);
+    			$user->email = $this->input->post('email');
+    
+    			$this->load->model('user_model');
+    			 
+    			$error = $this->user_model->insert($user);
+    
+    			$this->load->view('account/loginForm');
+    		}
+    	}
     }
 
     

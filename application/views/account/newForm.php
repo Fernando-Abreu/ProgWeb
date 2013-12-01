@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html>
@@ -28,6 +27,7 @@
 <body>  
 	<h1>New Account</h1>
 <?php 
+	
 	echo form_open('account/createNew');
 	echo form_label('Username'); 
 	echo form_error('username');
@@ -47,10 +47,24 @@
 	echo form_label('Email');
 	echo form_error('email');
 	echo form_input('email',set_value('email'),"required");
+	echo('<p></p>');
+	echo ('<p><img id="captcha" src="/connect4/securimage/securimage_show.php" alt="CAPTCHA Image" /></p>');
+	
+	echo form_label('Captcha');
+	echo form_input('captcha_code', set_value('capcha_code'),'required');
+	echo form_error('captcha_code');
+	
+	#echo ('<input type="text" name="captcha_code" size="10" maxlength="6" />');
+	#echo ("<a href='#' onclick='document.getElementById('captcha').src = '/connect4/securimage/securimage_show.php?' + Math.random(); return false'>[ Different Image ]</a>");
+	echo('<p></p>');
 	echo form_submit('submit', 'Register');
+	
 	echo form_close();
+	
 ?>	
+
+
+
 </body>
 
 </html>
-
