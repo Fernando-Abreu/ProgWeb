@@ -10,10 +10,10 @@ class Game {
   
     public function __construct() {
         $this->board = array(  array(0,0,0,0,0,0),
+                array(1,0,0,0,0,0),
                 array(0,0,0,0,0,0),
-                array(0,0,0,0,0,0),
-                array(0,0,0,0,0,0),
-                array(0,0,0,0,0,0),
+                array(2,0,0,0,0,0),
+                array(-2,0,0,0,0,0),
                 array(0,0,0,0,0,0),
                 array(0,0,0,0,0,0)  );
         $this->win = 0; // 0 or player id

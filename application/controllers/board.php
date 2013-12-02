@@ -186,6 +186,8 @@ class Board extends CI_Controller {
  	function play($column) {
  		//updates the board object in the db
  		
+ 		echo '<script type="text/javascript">alert("' . $msg . '"); </script>';
+ 		
  		$this->load->model('user_model');
  		$this->load->model('match_model');
  		$this->load->model('game');
@@ -226,7 +228,7 @@ class Board extends CI_Controller {
  		// if all went well commit changes
  		$this->db->trans_commit();
  			
- 		echo json_encode(array('status'=>'success','message'=>$msg));
+ 		echo json_encode(array('status'=>'success'));
  		return;
  		
  		transactionerror:

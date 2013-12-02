@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 
 <html>
@@ -11,7 +12,6 @@
 		var user = "<?= $user->login ?>";
 		var user_id = "<?= $user->id ?>";
 		var status = "<?= $status ?>";
-		var turn = false;
 		var possible_columns = [];
 		
 		$(function(){
@@ -26,7 +26,6 @@
 									status = 'playing';
 									$('#status').html('Playing ' + otherUser);
 								}
-								
 						});
 					}
 					var url = "<?= base_url() ?>board/getMsg";
@@ -38,30 +37,9 @@
 								$('[name=conversation]').val(conversation + "\n" + otherUser + ": " + msg);
 						}
 					});
-					var url = "<?= base_url() ?>board/check_for_updates";
-					$.getJSON(url, function (data,text,jqXHR){
-						if (data) {
-							if (data.victory==true) {
-								turn = false;
-								if (data.user==user_id) {
-									$('#move_desc').html("You won! :)");
-								} else {
-									$('#move_desc').html("You lost :(");
-								} 
-							} else {
-								if (data.user==user_id) {
-									turn = true;
-									possible_columns = data.columns;
-									$('#move_desc').html("Your turn");
-								} else {
-									turn = false;
-									$('#move_desc').html("Waiting for opponent");
-								}
-								board_array = data.board;
-								$('#board').html(board_array.toString());
-							}
-						}
-					});
+					if (turn==false) {
+						GetGameUpdate();
+					}
 			});
 
 			$('form').submit(function(){
@@ -75,7 +53,34 @@
 						});
 				return false;
 				});	
+
+		    GetGameUpdate();
 		});
+
+	function GetGameUpdate(){
+		var url = "<?= base_url() ?>board/check_for_updates";
+		$.getJSON(url, function (data,text,jqXHR){
+			if (data) {
+				if (data.victory==true) {
+					turn = false;
+					if (data.user==user_id) {
+						$('#move_desc').html("You won!");
+					} else {
+						$('#move_desc').html("You lost");
+					} 
+				} else {
+					if (data.user==user_id) {
+						possible_columns = data.columns;
+						$('#move_desc').html("Your turn");
+					} else {
+						possible_columns = [];
+						$('#move_desc').html("Waiting for opponent");
+					}
+					updateBoardDisplay(data.board);
+				}
+			}
+		});
+	}
 
 	</script>
 	</head>
@@ -100,8 +105,6 @@
 	<div id='move_desc'>
 	</div>
 	
-	<div id='board'></div>
-	
 	<canvas id="canvas" width="700" height="600" style="border:1px solid #FF0000;"></canvas>
 	
 	
@@ -115,15 +118,12 @@
 	echo form_close();
 	
 ?>
-	
-	
-	
-	
+		
 </body>
 
 <script>
+// board display functions
 
-// Game area
 var discs = [];
 var canvas;
 var context;
@@ -132,11 +132,8 @@ window.onload = function() {
     canvas = document.getElementById("canvas");
     canvas.onmousedown = canvasClick;
     context = canvas.getContext("2d");
-    getDiscs();
-      
 };
-  
-  
+   
 function Disc(canvas,x, y, color) 
 {
     if(canvas)
@@ -151,7 +148,6 @@ function Disc(canvas,x, y, color)
   
 Disc.prototype.draw = function()
 {
-      
     // Draw the dics
     this.context.globalAlpha = 0.85;
     this.context.beginPath();
@@ -160,29 +156,21 @@ Disc.prototype.draw = function()
     this.context.strokeStyle = "black"; 
     this.context.fill();
     this.context.stroke();
-    //alert(this.color + " " +this.x + " "+this.y );
 };
   
-
   
 function drawGrid(canvas) {
-     //canvas = document.getElementById("canvas");
-
     var gridOptions = {
         majorLines: {
             separation: 100,
             color: '#FF0000'
         }
     };
-
-   // drawGridLines(cnv, gridOptions.minorLines);
-   drawGridLines(canvas, gridOptions.majorLines);
-
+    drawGridLines(canvas, gridOptions.majorLines);
     return;
 }
 
 function drawGridLines(canvas, lineOptions) {
-
 
     var iWidth = canvas.width;
     var iHeight = canvas.height;
@@ -208,7 +196,6 @@ function drawGridLines(canvas, lineOptions) {
         context.stroke();
     }
 
-
     iCount = Math.floor(iHeight / lineOptions.separation);
 
     for (i = 1; i <= iCount; i++) {
@@ -219,7 +206,6 @@ function drawGridLines(canvas, lineOptions) {
     }
 
     context.closePath();
-
     return;
 }
   
@@ -231,8 +217,7 @@ function drawDiscs()
     // Draw all the discs in the grid
     drawGrid(canvas);
     for(var i=0; i<discs.length;i++)
-    {
-          
+    { 
         var disc = discs[i];
         disc.draw();
     }
@@ -241,89 +226,58 @@ function drawDiscs()
   
 function addDisc(x, y, color)
 {
-      
     // Creates new disc
     var disc = new Disc(canvas, x, y, color);
-      
     // Store disc in the array
     discs.push(disc);
-    // Redraw the canvas 
-    //drawDiscs();
-      
 }
   
 function canvasClick(e)
 {
-      
-    // Get the canvas click coordinates.
+    // Get the canvas click coordinates
     var clickX = e.pageX - canvas.offsetLeft;
-    var clickY = e.pageY - canvas.offsetTop;
-    // Check if is the user turn 
-    // if not send a alert is not your turn and return
-      
-      
-    // Gets the column clicked
     var column = Math.floor(clickX/100);
-
-    var arguments = $(this).serialize();
-    var url = "<?= base_url() ?>board/play";
-	$.getJSON(url, function (data,text,jqXHR){
-		$.post(url,arguments, function (data,textStatus,jqXHR){
-			var conversation = 2;
-			var msg = 3;
-		});	
-	});
-    // Call method to insert in that column for the current user
-    // it update the table
-      
-      
-    //alert(column);
-    getDiscs();
-      
-      
-    //addDisc(clickX,clickY, "blue");
+    // Check if it is a legal move
+    if (possible_columns.indexOf(column)!=-1) {
+		// play column
+        $.ajax({
+            url: "<?= base_url() ?>board/play",
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ 'column': column }),
+            success: function (result) {
+                alert("success");
+                GetGameUpdate();
+                //if (data && data.status=='success') {
+				//	alert ('real success');
+				//	}
+            }
+        });
+    }
     return;
 }
-  
-  
-function clearCanvas() {
-    // Remove all the circles.
-    discs = [];
 
-    // Update the display.
-    drawDiscs();
-}
-  
-function getDiscs()
+function updateBoardDisplay(board_array)
 {  
-    clearCanvas();
-	
-    
-    var board_array = new Array();
-    board_array[0] = new Array();
-      
-    board_array[0].push("green");
-    board_array[0].push("blue");
-    board_array[1] = new Array();
-    board_array[1].push("yellow");
-    board_array[2] = new Array();
-    board_array[3] = new Array();
-    board_array[4] = new Array();
-    board_array[5] = new Array();
-    board_array[6] = new Array();
-     
-    for (var column = 0; column<board_array.length; column++)
+	discs = [];
+    for (var column = 0; column<7; column++)
     {
-        for (var row =0; row<board_array[column].length; row++)
+        for (var row =0; row<6; row++)
         {
-              
-            var x = 50 + 100*column;
-            var y = 550 - 100*row;
-            var color = board_array[column][row];
-              
-              
-            addDisc(x, y, color );  
-                          
+            if (board_array[column][row]!=0){
+	            var x = 50 + 100*column;
+	            var y = 550 - 100*row;
+	            var color_id = board_array[column][row];
+				var color = "";
+	            switch(color_id)
+	            {
+	            	case(1): color = "blue";break;
+	            	case(2): color = "green"; break;
+	            	case(-1): color = "lightblue";break;
+	            	case(-2): color = "lightgreen";break;
+		        }
+	            addDisc(x, y, color);  
+            }                      
         }
     }
     drawDiscs();
