@@ -13,16 +13,8 @@ class Match_model extends CI_Model {
 
 	function get($id)
 	{
-		/*
 		$this->db->where('id',$id);
 		$query = $this->db->get('match');
-		if ($query && $query->num_rows() > 0)
-			return $query->row(0,'Match');
-		else
-			return null;
-			*/
-		$sql = "select * from `match` where id=? lock in share mode";
-		$query = $this->db->query($sql,array($id));
 		if ($query && $query->num_rows() > 0)
 			return $query->row(0,'Match');
 		else

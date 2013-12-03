@@ -26,6 +26,35 @@ class Arcade extends CI_Controller {
 		    	}
 		    	$this->load->view('arcade/mainPage',$data);
     }
+    
+    function endMatch() {
+    	$user=$_SESSION['user'];
+    	if (isset($_SESSION['errmsg'])) {
+    		$data['errmsg']=	$_SESSION['errmsg'];
+    		unset($_SESSION['errmsg']);
+    	}
+
+    	// start transactional mode
+    	$this->db->trans_begin();
+    	
+    	$this->load->model('user_model');
+    	$user = $this->user_model->getExclusive($user->login);
+    	$this->user_model->updateStatus($user->id,User::AVAILABLE);
+
+		if ($this->db->trans_status() === FALSE)
+    		goto transactionerror;
+    	
+    	// if all went well commit changes
+    	$this->db->trans_commit();
+    	
+    	$data['user']=$user;
+    	$this->load->view('arcade/mainPage',$data);
+    	return;
+    	
+    	// something went wrong
+    	transactionerror:
+    	$this->db->trans_rollback();
+    }
 
     function getAvailableUsers() {
  	   	$this->load->model('user_model');

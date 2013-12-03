@@ -146,7 +146,6 @@ class Board extends CI_Controller {
  	 *   user - the id of the user who won, or the user that should play
  	 *   columns - an array of valid columns to put a disc (not full)
  	 */
-
  	function check_for_updates() {
  		
  		$this->load->model('user_model');

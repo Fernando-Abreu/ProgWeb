@@ -3,6 +3,7 @@
 
 <html>
 	<head>
+		<link href="<?= base_url() ?>/css/template.css" rel="stylesheet">
 		<style>
 			input {
 				display: block;

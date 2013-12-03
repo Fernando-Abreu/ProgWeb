@@ -4,7 +4,8 @@
 <html>
 	
 	<head>
-
+	
+	<link href="<?= base_url() ?>/css/template.css" rel="stylesheet">
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<script src="<?= base_url() ?>/js/jquery.timers.js"></script>
 	<script>

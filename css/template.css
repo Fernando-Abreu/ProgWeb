@@ -12,11 +12,11 @@
  
  
  h1 {
- 	color: blue;
+ 	color: darkblue;
  }
  
  h2{
- 	color: blue;
+ 	color: #6800E8;
  }
 
  #header{
@@ -50,6 +50,7 @@
  	 float:left;
  	 border:1px solid;
  	 margin:20px;
+ 	 background: lightblue;
  }
 
 #message_box{
