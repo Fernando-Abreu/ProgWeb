@@ -154,7 +154,7 @@ class Board extends CI_Controller {
  		$this->load->model('game');
  			
  		$user = $_SESSION['user'];
- 		 
+ 		
  		$user = $this->user_model->get($user->login);
  		if ($user->user_status_id != User::PLAYING) {	
  			$errormsg="Not in PLAYING state";
@@ -182,15 +182,17 @@ class Board extends CI_Controller {
  		error:
  		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
- 	
- 	function play($column) {
+
+ 	function play() {
  		//updates the board object in the db
- 		
- 		echo '<script type="text/javascript">alert("' . $msg . '"); </script>';
- 		
+ 		$data = $this->input->get_post('json');
+ 		$column = json_decode($data);
+
  		$this->load->model('user_model');
  		$this->load->model('match_model');
  		$this->load->model('game');
+ 		
+ 		$_SESSION['testing'] = "playing";
  		
  		$user = $_SESSION['user'];
  		$user = $this->user_model->get($user->login);
@@ -203,23 +205,24 @@ class Board extends CI_Controller {
  		$this->db->trans_begin();
  		
  		$match = $this->match_model->getExclusive($user->match_id);
-
+		
  		$board_state = $match->board_state;
  		$game = unserialize($board_state);
  		if (!($game->isValidMove($column, $user->id))) {
  			$errormsg="Invalid move";
+ 			$_SESSION['testing'] = "invalid move";
  			goto transactionerror;
  		}
  		$game->insertToColumn($column, $user->id);
  		$win = $game->checkWin();
  		if ($win != 0) {
  			$win = ($win==$match->user1_id)? (Match::U1WON):(Match::U2WON);
- 			$match = $this->match_model->updateStatus($win);
+ 			$this->match_model->updateStatus($win, $match->id);
  		}
- 
- 		$board_state = serialize($board_state);
+ 		
+ 		$board_state = serialize($game);
  		$this->match_model->updateBoard($match->id,$board_state);
- 	
+ 		
  		if ($this->db->trans_status() === FALSE) {
  			$errormsg = "Transaction error";
  			goto transactionerror;
@@ -229,12 +232,14 @@ class Board extends CI_Controller {
  		$this->db->trans_commit();
  			
  		echo json_encode(array('status'=>'success'));
+ 		$_SESSION['testing'] = "played";
  		return;
  		
  		transactionerror:
  		$this->db->trans_rollback();
  		
  		error:
+ 		$_SESSION['testing'] = "error";
  		echo json_encode(array('status'=>'failure','message'=>$errormsg));
  	}
  	

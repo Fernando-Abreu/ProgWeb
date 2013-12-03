@@ -10,10 +10,10 @@ class Game {
   
     public function __construct() {
         $this->board = array(  array(0,0,0,0,0,0),
-                array(1,0,0,0,0,0),
                 array(0,0,0,0,0,0),
-                array(2,0,0,0,0,0),
-                array(-2,0,0,0,0,0),
+                array(0,0,0,0,0,0),
+                array(0,0,0,0,0,0),
+                array(0,0,0,0,0,0),
                 array(0,0,0,0,0,0),
                 array(0,0,0,0,0,0)  );
         $this->win = 0; // 0 or player id
@@ -52,7 +52,7 @@ class Game {
     public function isValidMove($column, $userid){
     	$userValid = ($this->win==0 && $this->players[$this->turn]==$userid);
     	$columnValid = ($column>=0 && $column<=6 && $this->board[$column][5]==0);
-    	return $moveValid && $columnValid;
+    	return $userValid && $columnValid;
     }
   
     // should be called only after isValidMove

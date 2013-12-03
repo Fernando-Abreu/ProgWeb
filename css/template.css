@@ -2,9 +2,7 @@
  	background-image:url('http://localhost/csc309db/images/dcs_logo.png');
 	background-repeat:no-repeat;
 	background-size:200px;
-    font-family: Arial, Verdana, sans-serif;
-    margin:0;
-    padding:0;
+	background-color:#f0fffd;
  }
   
  
@@ -14,12 +12,10 @@
  
  
  h1 {
- 	font-size:2em;
- 	color: green;
+ 	color: blue;
  }
  
  h2{
- 	font-size:1em;
  	color: blue;
  }
 
@@ -49,5 +45,15 @@
     height:800px;
 	background: white;
  }
+ 
+ #canvas{
+ 	 float:left;
+ 	 border:1px solid;
+ 	 margin:20px;
+ }
 
+#message_box{
+	float:left;
+ 	 margin:20px;
+}
 
